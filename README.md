@@ -17,20 +17,25 @@ Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
 backblaze_b2 = "0.1.0"
+```
 Or install via Cargo:
-
-
+```bash
 cargo add backblaze_b2
+```
+
 Usage
 Configuration
 Create a .env file in your project root:
 
-
+```txt
 B2_APPLICATION_KEY_ID=your_application_key_id
 B2_APPLICATION_KEY=your_application_key
 B2_API_BASE_URL=https://api.backblazeb2.com
+```
+
 Example
 
+```rust
 use backblaze_b2::{config::Config, client::B2Client};
 
 #[tokio::main]
@@ -53,6 +58,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+```
+
 Documentation
 Full API documentation is available at GitHub Pages.
 
