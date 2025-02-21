@@ -5,7 +5,7 @@ use backblaze_b2::models::Bucket;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-// Общая настройка для тестов
+// Common setup for tests
 mod common {
     use super::*;
 
@@ -45,21 +45,21 @@ mod common {
     }
 }
 
-// --- Успешные сценарии ---
+// --- Successful scenarios ---
 
 #[tokio::test]
 async fn test_list_buckets_success() {
     let mock_server = common::setup_mock_server().await;
     let config = common::default_config(&mock_server);
 
-    // Настройка mock-ответа для авторизации
+    // Mock response setup for authorization
     Mock::given(method("GET"))
         .and(path("/b2api/v3/b2_authorize_account"))
         .respond_with(ResponseTemplate::new(200).set_body_json(common::auth_response(&mock_server)))
         .mount(&mock_server)
         .await;
 
-    // Настройка mock-ответа для списка бакетов
+    // Mock response setup for bucket list
     Mock::given(method("POST"))
         .and(path("/b2api/v3/b2_list_buckets"))
         .respond_with(ResponseTemplate::new(200).set_body_json(common::success_buckets_response()))
@@ -87,7 +87,7 @@ async fn test_list_buckets_success() {
     assert_eq!(buckets[0].bucket_name, "test-bucket");
 }
 
-// --- Ошибки ---
+// --- Errors ---
 
 #[tokio::test]
 async fn test_list_buckets_unauthorized() {
@@ -101,7 +101,7 @@ async fn test_list_buckets_unauthorized() {
         .mount(&mock_server)
         .await;
 
-    // Настройка mock-ответа для ошибки 401
+    // Mock response setup for 401 error
     let error_response = serde_json::json!({
         "status": 401,
         "code": "unauthorized",
@@ -150,7 +150,7 @@ async fn test_list_buckets_retry_429() {
         .mount(&mock_server)
         .await;
 
-    // Настройка mock-ответа для последовательных попыток
+    // Mock response setup for sequential retries
     let error_response = serde_json::json!({
         "status": 429,
         "code": "too_many_requests",
@@ -170,7 +170,7 @@ async fn test_list_buckets_retry_429() {
                 ResponseTemplate::new(200).set_body_json(success_response.clone())
             }
         })
-        .expect(3) // Ожидаем 3 попытки (2 ошибки + 1 успех)
+        .expect(3) // Expect 3 attempts (2 errors + 1 success)
         .mount(&mock_server)
         .await;
 
@@ -182,7 +182,7 @@ async fn test_list_buckets_retry_429() {
         auth_result.err()
     );
 
-    // Добавим логирование для отладки
+    // Add debug logging
     println!("Starting list_buckets request");
     let buckets_result = client.list_buckets().await;
     println!("List buckets result: {:?}", buckets_result);
@@ -198,6 +198,6 @@ async fn test_list_buckets_retry_429() {
     assert_eq!(buckets[0].bucket_id, "bucket1");
     assert_eq!(buckets[0].bucket_name, "test-bucket");
 
-    // Проверяем, что mock-сервер обработал все ожидаемые запросы
+    // Verify that the mock server handled all expected requests
     mock_server.verify().await;
 }

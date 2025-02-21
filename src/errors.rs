@@ -34,7 +34,7 @@ pub enum B2Error {
     InvalidResponse(String),
 
     #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error), // Добавляем новый вариант для IO ошибок
+    IoError(#[from] std::io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, B2Error>;

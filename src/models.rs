@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Response from b2_authorize_account.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Authorization {
-    #[serde(rename = "accountId")] // Указываем, что в JSON используется "accountId"
+    #[serde(rename = "accountId")]
     pub account_id: String,
     #[serde(rename = "authorizationToken")]
     pub authorization_token: String,
